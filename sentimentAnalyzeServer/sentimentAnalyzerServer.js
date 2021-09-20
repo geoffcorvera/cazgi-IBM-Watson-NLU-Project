@@ -9,9 +9,6 @@ app.use(express.static('client'));
 const cors_app = require('cors');
 app.use(cors_app());
 
-/*Uncomment the following lines to loan the environment 
-variables that you set up in the .env file*/
-
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -41,45 +38,98 @@ app.get("/",(req,res)=>{
 
 //The endpoint for the webserver ending with /url/emotion
 app.get("/url/emotion", (req,res) => {
-    // //Extract the url passed from the client through the request object
-    // let urlToAnalyze = req.query.url
-    // const analyzeParams = 
-    //     {
-    //         "url": urlToAnalyze,
-    //         "features": {
-    //             "keywords": {
-    //                             "emotion": true,
-    //                             "limit": 1
-    //                         }
-    //         }
-    //     }
-     
-    //  const naturalLanguageUnderstanding = getNLUInstance();
-     
-    //  naturalLanguageUnderstanding.analyze(analyzeParams)
-    //  .then(analysisResults => {
-    //     //Print the JSON returned by NLU instance as a formatted string
-    //     console.log(JSON.stringify(analysisResults.result.keywords[0].emotion,null,2));
-    //     //Please refer to the image to see the order of retrieval
-    //     return res.send(analysisResults.result.keywords[0].emotion,null,2);
-    //  })
-    //  .catch(err => {
-    //  return res.send("Could not do desired operation "+err);
-    //  });
+    //Extract the url passed from the client through the request object
+    const urlToAnalyze = req.query.url;
+    const analyzeParams = {
+        "url": urlToAnalyze,
+        "features": {
+            "keywords": {
+                "emotion": true,
+                "limit": 1
+            }
+        }
+    };
+
+    const NLU = getNLUInstance();
+
+    NLU.analyze(analyzeParams)
+        .then(analysisResults => {
+            console.log(JSON.stringify(analysisResults.result.keywords[0].emotion, null, 2));
+            return res.send(analysisResults.result.keywords[0].emotion, null, 2);
+        })
+        .catch(err => {
+            return res.send("Could not do desired operation: " + err);
+        })
 });
 
 //The endpoint for the webserver ending with /url/sentiment
 app.get("/url/sentiment", (req,res) => {
-    return res.send("url sentiment for "+req.query.url);
+    const urlToAnalyze = req.query.url;
+    const analyzeParams = {
+        'url': urlToAnalyze,
+        'features': {
+            'keywords': {
+                'sentiment': true,
+                'limit': 2,
+            },
+        }
+    }
+
+    const NLU = getNLUInstance();
+    NLU.analyze(analyzeParams)
+        .then(analysisResults => {
+            res.send(analysisResults.result.keywords[0].sentiment)
+        })
+        .catch(err => {
+            return res.send('Could not do desired operation: ' + err)
+        })
 });
 
 //The endpoint for the webserver ending with /text/emotion
 app.get("/text/emotion", (req,res) => {
-    return res.send({"happy":"10","sad":"90"});
+    const textToAnalyze = req.query.text
+    const analyzeParams = {
+        'features': {
+            'keywords': {
+                'emotion': true,
+                'limit': 2,
+            },
+        },
+        'text': textToAnalyze,
+    }
+
+    const NLU = getNLUInstance()
+    NLU.analyze(analyzeParams)
+        .then(analysisResults => {
+            console.log(JSON.stringify(analysisResults.result.keywords[0].emotion, null, 2))
+            return res.send(analysisResults.result.keywords[0].emotion, null, 2);
+        })
+        .catch(err => {
+            return res.send('Could not do operation: ' + err);
+        });
 });
 
 app.get("/text/sentiment", (req,res) => {
-    return res.send("text sentiment for "+req.query.text);
+    const textToAnalyze = req.query.text
+    const analyzeParams = {
+        'features': {
+            'keywords': {
+                'sentiment': true,
+                'limit': 2,
+            },
+        },
+        'text': textToAnalyze,
+    }
+
+    const NLU = getNLUInstance()
+    NLU.analyze(analyzeParams)
+        .then(analysisResults => {
+            console.log(JSON.stringify(analysisResults.result.keywords[0].sentiment))
+            return res.send(analysisResults.result.keywords[0].sentiment, null, 2);
+        })
+        .catch(err => {
+            return res.send('Could not do operation: ' + err);
+        });
 });
 
 let server = app.listen(8080, () => {
