@@ -1,1 +1,1 @@
-Deployed at: https://github.com/geoffcorvera/cazgi-IBM-Watson-NLU-Project
+Deployed at: gcorvera-503-sentiment-analyzer-quiet-echidna-um.mybluemix.net
